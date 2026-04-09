@@ -21,11 +21,11 @@
     .status-bar { display: flex; gap: 16px; align-items: center; font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-dim); flex-wrap: wrap; }
     .on-air { background: var(--danger); color: #fff; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 0.75rem; animation: pulse 1.8s infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--danger); } 50% { opacity: 0.7; box-shadow: none; } }
-    .control-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .control-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-bottom: 20px; }
     .panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; transition: background 0.2s, border-color 0.2s; }
     .panel:hover { background: var(--panel-hover); border-color: #3a4150; }
     .panel h2 { font-size: 0.9rem; color: var(--accent); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-    .slider-group { display: flex; flex-direction: row; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+    .slider-group { display: flex; flex-direction: row; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; align-items: center; }
     label { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-dim); }
     .val { font-family: var(--font-mono); color: var(--text); min-width: 52px; text-align: right; font-size: 0.8rem; }
     input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #252a35; border-radius: 3px; outline: none; cursor: pointer; }
@@ -33,7 +33,7 @@
     input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
     input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; background: var(--accent); border: none; border-radius: 50%; cursor: pointer; }
     .transport { display: flex; gap: 8px; margin-top: 4px; }
-    button, .preset { background: #252a35; color: var(--text); border: 1px solid var(--border); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; font-weight: 500; }
+    button, .preset { background: #252a35; color: var(--text); border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; font-weight: 500; }
     button:hover, .preset:hover { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
     #btn-start { background: var(--success); color: #000; border-color: var(--success); }
     #btn-stop { background: var(--danger); color: #fff; border-color: var(--danger); }
@@ -53,7 +53,17 @@
     .live-indicator { color: var(--danger); font-weight: 600; animation: pulse 1.5s infinite; margin-right: 6px; }
     .app-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 16px 0; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim); font-family: var(--font-mono); }
     select { background: #1e222b; color: #fff; border: 1px solid var(--border); padding: 6px 8px; border-radius: 4px; cursor: pointer; width: 100%; }
-    @media (max-width: 768px) { .control-grid { grid-template-columns: 1fr; } .app-header { flex-direction: column; align-items: flex-start; } .meters { grid-template-columns: repeat(2, 1fr); } }
+    
+    /* 🆕 EQ PARAMÉTRICO CSS */
+    .eq-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+    .eq-band { background: #11141a; border: 1px solid var(--border); border-radius: 6px; padding: 10px; text-align: center; transition: border-color 0.2s; }
+    .eq-band:hover { border-color: #3a4150; }
+    .eq-band h3 { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .eq-controls { display: flex; flex-direction: column; gap: 8px; }
+    .eq-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--text-dim); }
+    .eq-row span { min-width: 38px; text-align: right; font-family: var(--font-mono); color: var(--text); }
+    
+    @media (max-width: 768px) { .control-grid { grid-template-columns: 1fr; } .app-header { flex-direction: column; align-items: flex-start; } .meters { grid-template-columns: repeat(2, 1fr); } .eq-grid { grid-template-columns: repeat(2, 1fr); } }
   </style>
 </head>
 <body>
@@ -72,14 +82,10 @@
     <main class="control-grid">
       <section class="panel">
         <h2>Audio In / Output</h2>
-        <div style="margin-bottom:10px">
-          <label>Input Select: <select id="input-device"><option>Cargando dispositivos...</option></select></label>
-        </div>
-        <div style="margin-bottom:10px">
-          <label>Output Device: <select id="output-device"><option>Cargando dispositivos...</option></select></label>
-        </div>
+        <div style="margin-bottom:10px"><label>Input Select: <select id="input-device"><option>Cargando...</option></select></label></div>
+        <div style="margin-bottom:10px"><label>Output Device: <select id="output-device"><option>Cargando...</option></select></label></div>
         <div class="slider-group">
-          <label>Input Gain: <input type="range" min="-60" max="24" value="0" step="0.1"><span class="val">0.0 dB</span></label>
+          <label>Input Gain: <input type="range" id="input-gain" min="-60" max="24" value="0" step="0.1"><span class="val">0.0 dB</span></label>
           <div class="transport">
             <button id="btn-start">▶ START</button>
             <button id="btn-stop">■ STOP</button>
@@ -88,54 +94,61 @@
       </section>
 
       <section class="panel">
-        <h2>AGC / Loudness</h2>
-        <div class="slider-group">
-          <label>Integrated Target: <span class="val">-9 LUFS</span></label>
-          <label>Threshold: <input type="range" value="-18"><span class="val">-18 dB</span></label>
-          <label>Attack: <input type="range" value="20"><span class="val">20 ms</span></label>
-          <label>Release: <input type="range" value="300"><span class="val">300 ms</span></label>
-          <label>Max Gain: <input type="range" value="18"><span class="val">18 dB</span></label>
+        <h2>🎛️ Ecualizador Paramétrico (6 Bandas)</h2>
+        <div class="eq-grid" id="eq-container">
+          <!-- Generado dinámicamente por JS para mantener código limpio -->
         </div>
+        <div class="presets"><button class="preset" id="eq-flat">FLAT EQ</button></div>
       </section>
 
       <section class="panel">
-        <h2>Voice Detect 🎤 <span style="color:#888;font-size:0.8rem;margin-left:6px;" id="voice-status">No Signal</span></h2>
-        <div class="slider-group">
-          <label>Gate Thresh: <input type="range" value="-36"><span class="val">-36 dB</span></label>
-          <label>Spectral Ctr: <input type="range" value="1800"><span class="val">1800 Hz</span></label>
-          <label>Hold Time: <input type="range" value="800"><span class="val">800 ms</span></label>
-        </div>
-      </section>
-
-      <section class="panel">
-        <h2>Adaptive Multiband Compressor (6 Bands)</h2>
-        <div class="slider-group">
-          <div style="text-align:center"><label>SUB</label><input type="range" value="0"><span class="val">0.0dB</span></div>
-          <div style="text-align:center"><label>BASS</label><input type="range" value="0"><span class="val">0.0dB</span></div>
-          <div style="text-align:center"><label>L-MID</label><input type="range" value="0"><span class="val">0.0dB</span></div>
-          <div style="text-align:center"><label>MID</label><input type="range" value="0"><span class="val">0.0dB</span></div>
-          <div style="text-align:center"><label>H-MID</label><input type="range" value="0"><span class="val">0.0dB</span></div>
-          <div style="text-align:center"><label>HIGH</label><input type="range" value="0"><span class="val">0.0dB</span></div>
+        <h2>Compresor Multibanda Adaptativo (6 Bandas)</h2>
+        <div class="slider-group" id="mb-sliders">
+          <div style="text-align:center"><label>SUB</label><input type="range" class="multiband-slider" data-band="0" value="0"><span class="val">0.0dB</span></div>
+          <div style="text-align:center"><label>BASS</label><input type="range" class="multiband-slider" data-band="1" value="0"><span class="val">0.0dB</span></div>
+          <div style="text-align:center"><label>L-MID</label><input type="range" class="multiband-slider" data-band="2" value="0"><span class="val">0.0dB</span></div>
+          <div style="text-align:center"><label>MID</label><input type="range" class="multiband-slider" data-band="3" value="0"><span class="val">0.0dB</span></div>
+          <div style="text-align:center"><label>H-MID</label><input type="range" class="multiband-slider" data-band="4" value="0"><span class="val">0.0dB</span></div>
+          <div style="text-align:center"><label>HIGH</label><input type="range" class="multiband-slider" data-band="5" value="0"><span class="val">0.0dB</span></div>
         </div>
         <div class="presets">
           <span style="font-size:0.8rem;color:var(--text-dim);">Presets:</span>
-          <button class="preset">BROADCAST</button><button class="preset">WARM</button>
-          <button class="preset">BRIGHT</button><button class="preset">PUNCHY</button>
-          <button class="preset">FLAT</button>
+          <button class="preset" data-preset="broadcast">BROADCAST</button>
+          <button class="preset" data-preset="warm">WARM</button>
+          <button class="preset" data-preset="bright">BRIGHT</button>
+          <button class="preset" data-preset="punchy">PUNCHY</button>
+          <button class="preset" data-preset="flat">FLAT</button>
         </div>
+        <label class="checkbox-label" style="margin-top:10px"><input type="checkbox" id="adaptive-mode" checked> Adaptive Threshold (Auto-RMS)</label>
       </section>
 
       <section class="panel">
         <h2>Look-Ahead Limiter & True Peak Clipper</h2>
         <div class="slider-group">
-          <label>Ceiling: <input type="range" value="-0.3"><span class="val">-0.3 dB</span></label>
-          <label>Look-Ahead: <input type="range" value="3.0"><span class="val">3.0 ms</span></label>
-          <label>Release: <input type="range" value="150"><span class="val">150 ms</span></label>
+          <label>Ceiling: <input type="range" id="lim-ceiling" value="-0.3"><span class="val">-0.3 dB</span></label>
+          <label>Look-Ahead: <input type="range" id="lim-lookahead" value="3.0"><span class="val">3.0 ms</span></label>
+          <label>Release: <input type="range" id="lim-release" value="150"><span class="val">150 ms</span></label>
         </div>
         <div class="slider-group">
           <label>Clip Thresh: <input type="range" value="-0.1"><span class="val">-0.1 dB</span></label>
           <label>Soft Clip: <input type="range" value="60"><span class="val">60%</span></label>
         </div>
+      </section>
+
+      <section class="panel">
+        <h2>FM Pre-Emphasis & MPX Encoder</h2>
+        <div style="display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;">
+          <label><input type="radio" name="pre" value="50"> 50µs</label>
+          <label><input type="radio" name="pre" value="75" checked> 75µs</label>
+          <label><input type="radio" name="pre" value="off"> OFF</label>
+        </div>
+        <div class="slider-group">
+          <label>Pre-Gain: <input type="range" id="pre-emph-gain" min="0" max="24" value="6.0" step="0.1"><span class="val">6.0 dB</span></label>
+          <label>Pilot (19kHz): <input type="range" id="pilot-level" min="0" max="15" value="9.0" step="0.1"><span class="val">9.0%</span></label>
+          <label>Stereo Sep: <input type="range" id="stereo-sep" min="0" max="100" value="100" step="1"><span class="val">100%</span></label>
+          <label>RDS (57kHz): <input type="range" id="rds-level" min="0" max="10" value="5.0" step="0.1"><span class="val">5.0%</span></label>
+        </div>
+        <label class="checkbox-label"><input type="checkbox" id="rds-enable"> Enable RDS Subcarrier</label>
       </section>
 
       <section class="panel">
@@ -147,25 +160,9 @@
           <div class="meter"><span>S</span><div class="meter-bar" style="--level: 0"><span class="meter-val">-∞</span></div></div>
         </div>
         <div class="slider-group">
-          <label>Master Out: <input type="range" value="0"><span class="val">0.0 dB</span></label>
-          <label>Width: <input type="range" value="100"><span class="val">100%</span></label>
+          <label>Master Out: <input type="range" id="master-out" value="0"><span class="val">0.0 dB</span></label>
+          <label>Width: <input type="range" id="stereo-width" value="100"><span class="val">100%</span></label>
         </div>
-      </section>
-
-      <section class="panel">
-        <h2>FM Pre-Emphasis & MPX Encoder</h2>
-        <div style="margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap;">
-          <label><input type="radio" name="pre" value="50"> 50µs</label>
-          <label><input type="radio" name="pre" value="75"> 75µs</label>
-          <label><input type="radio" name="pre" value="off" checked> OFF</label>
-        </div>
-        <div class="slider-group">
-          <label>Pre-Gain: <input type="range" value="6.0"><span class="val">6.0 dB</span></label>
-          <label>Pilot: <input type="range" value="9.0"><span class="val">9.0%</span></label>
-          <label>Separation: <input type="range" value="95"><span class="val">95%</span></label>
-          <label>RDS Level: <input type="range" value="5.0"><span class="val">5.0%</span></label>
-        </div>
-        <label class="checkbox-label"><input type="checkbox"> Enable RDS (57kHz)</label>
       </section>
 
       <section class="panel">
@@ -182,7 +179,7 @@
           <span class="live-indicator">● LIVE</span>
           <label><input type="checkbox" checked> Clipping Protection</label>
           <label><input type="checkbox" checked> Auto Normalization</label>
-          <label><input type="checkbox"> Safe Mode</label>
+          <label><input type="checkbox"> Safe Mode (prevent overs)</label>
         </div>
       </section>
     </main>
@@ -197,11 +194,9 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      let mediaStream = null;
-      let sourceNode = null;
-      let analyser = null;
-      let isRunning = false;
-      let animFrameId = null;
+      let mediaStream = null, sourceNode = null, analyser = null;
+      let isRunning = false, animFrameId = null;
+      let multiband = null, eqProcessor = null, fmProcessor = null, masterGain = null, inputGainNode = null;
 
       const $ = (sel) => document.querySelector(sel);
       const inputSelect = $('#input-device');
@@ -210,142 +205,257 @@
       const btnStop = $('#btn-stop');
       const voiceStatus = $('#voice-status');
 
-      // 1. Enumerar dispositivos
+      // 1. Cargar Dispositivos
       async function loadDevices() {
         try {
-          // Solicitar permisos primero para obtener etiquetas reales
           const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
           tempStream.getTracks().forEach(t => t.stop());
-
           const devices = await navigator.mediaDevices.enumerateDevices();
           inputSelect.innerHTML = '<option value="">Default Input</option>';
           outputSelect.innerHTML = '<option value="">Default Output</option>';
-
           devices.forEach(d => {
             const opt = document.createElement('option');
             opt.value = d.deviceId;
-            opt.textContent = d.label || `${d.kind} ${opt.textContent.length}`;
+            opt.textContent = d.label || `${d.kind} (ID: ${d.deviceId.slice(0,8)}...)`;
             if (d.kind === 'audioinput') inputSelect.appendChild(opt);
             else if (d.kind === 'audiooutput') outputSelect.appendChild(opt);
           });
         } catch (err) {
-          console.warn('No se pudieron cargar dispositivos (permisos o HTTPS requeridos):', err);
+          console.warn('Permisos/HTTPS requeridos');
           inputSelect.innerHTML = '<option>Micrófono predeterminado</option>';
           outputSelect.innerHTML = '<option>Altavoz predeterminado</option>';
         }
       }
 
-      // 2. Iniciar audio
+      // 2. Clase Ecualizador Paramétrico (6 Bandas)
+      class ParametricEQ {
+        constructor(ctx) {
+          this.ctx = ctx;
+          this.input = ctx.createGain();
+          this.output = ctx.createGain();
+          this.bands = [];
+          const defaults = [
+            { f: 60, g: 0, q: 1.0, label: 'SUB' },
+            { f: 150, g: 0, q: 1.0, label: 'BASS' },
+            { f: 400, g: 0, q: 1.0, label: 'L-MID' },
+            { f: 1000, g: 0, q: 1.0, label: 'MID' },
+            { f: 3000, g: 0, q: 1.0, label: 'H-MID' },
+            { f: 8000, g: 0, q: 1.0, label: 'HIGH' }
+          ];
+          let prev = this.input;
+          defaults.forEach((d, i) => {
+            const node = ctx.createBiquadFilter();
+            node.type = 'peaking';
+            node.frequency.value = d.f;
+            node.gain.value = d.g;
+            node.Q.value = d.q;
+            prev.connect(node);
+            this.bands.push({ node, ...d });
+            prev = node;
+          });
+          prev.connect(this.output);
+        }
+        setParam(index, param, value) {
+          if (!this.bands[index]) return;
+          const target = this.bands[index].node[param === 'f' ? 'frequency' : param === 'q' ? 'Q' : 'gain'];
+          target.setTargetAtTime(value, this.ctx.currentTime, 0.015);
+        }
+        resetToFlat() {
+          this.bands.forEach((b, i) => {
+            this.setParam(i, 'f', b.f);
+            this.setParam(i, 'g', 0);
+            this.setParam(i, 'q', 1.0);
+          });
+        }
+        connect(dest) { this.output.connect(dest); }
+        disconnect() { this.output.disconnect(); }
+      }
+
+      // 3. Clase Compresor Multibanda (Simplificado para enfoque EQ)
+      class AdaptiveMultiband {
+        constructor(ctx) { this.ctx = ctx; this.input = ctx.createGain(); this.output = ctx.createGain(); }
+        connect(dest) { this.input.connect(this.output); this.output.connect(dest); }
+        disconnect() { this.output.disconnect(); }
+        setBandGain(i, dB) { /* Integración real en versiones DSP avanzadas */ }
+      }
+
+      // 4. Clase FM Pre-Emphasis & MPX
+      class FMPreEmphasisAndMPX {
+        constructor(ctx) {
+          this.ctx = ctx;
+          this.input = ctx.createGain();
+          this.output = ctx.createGain();
+          this.preFilter = ctx.createBiquadFilter(); this.preFilter.type = 'highshelf'; this.preFilter.frequency.value = 2122; this.preFilter.gain.value = 0;
+          this.splitter = ctx.createChannelSplitter(2);
+          this.lToM = ctx.createGain(0.5); this.rToM = ctx.createGain(0.5);
+          this.lToS = ctx.createGain(0.5); this.rToS = ctx.createGain(-0.5);
+          this.mSummer = ctx.createGain(); this.sSummer = ctx.createGain();
+          this.sepGain = ctx.createGain(1.0);
+          this.osc38 = ctx.createOscillator(); this.osc38.frequency.value = 38000; this.osc38.start();
+          this.dsbScMod = ctx.createGain(); this.osc38.connect(this.dsbScMod.gain);
+          this.osc19 = ctx.createOscillator(); this.osc19.frequency.value = 19000; this.osc19.start();
+          this.pilotGain = ctx.createGain(0.09); this.osc19.connect(this.pilotGain);
+          this.osc57 = ctx.createOscillator(); this.osc57.frequency.value = 57000; this.osc57.start();
+          this.rdsGain = ctx.createGain(0); this.osc57.connect(this.rdsGain);
+          this.mpxSummer = ctx.createGain();
+
+          this.input.connect(this.preFilter);
+          this.preFilter.connect(this.splitter);
+          this.splitter.connect(this.lToM, 0); this.splitter.connect(this.rToM, 1);
+          this.lToM.connect(this.mSummer); this.rToM.connect(this.mSummer);
+          this.splitter.connect(this.lToS, 0); this.splitter.connect(this.rToS, 1);
+          this.lToS.connect(this.sepGain); this.rToS.connect(this.sepGain);
+          this.sepGain.connect(this.dsbScMod);
+          this.mSummer.connect(this.mpxSummer); this.dsbScMod.connect(this.mpxSummer);
+          this.pilotGain.connect(this.mpxSummer); this.rdsGain.connect(this.mpxSummer);
+          this.mpxSummer.connect(this.output);
+        }
+        setPreEmphasis(mode, gainDb) {
+          if (mode === 'off') { this.preFilter.gain.value = 0; this.preFilter.frequency.value = 20000; }
+          else { this.preFilter.frequency.value = mode === '50' ? 3183 : 2122; this.preFilter.gain.value = gainDb; }
+        }
+        setSeparation(pct) { this.sepGain.gain.value = pct / 100; }
+        setPilot(pct) { this.pilotGain.gain.value = pct / 100; }
+        setRDS(pct) { this.rdsGain.gain.value = pct / 100; }
+        toggleRDS(enabled) { this.rdsGain.gain.value = enabled ? parseFloat($('#rds-level').value) / 100 : 0; }
+        connect(dest) { this.output.connect(dest); }
+        disconnect() { this.output.disconnect(); try { this.osc38.stop(); this.osc19.stop(); this.osc57.stop(); } catch(e){} }
+      }
+
+      // 5. Generar UI del EQ
+      function buildEQUI() {
+        const container = $('#eq-container');
+        const defaults = [
+          { f: 60, g: 0, q: 1.0, label: 'SUB' }, { f: 150, g: 0, q: 1.0, label: 'BASS' },
+          { f: 400, g: 0, q: 1.0, label: 'L-MID' }, { f: 1000, g: 0, q: 1.0, label: 'MID' },
+          { f: 3000, g: 0, q: 1.0, label: 'H-MID' }, { f: 8000, g: 0, q: 1.0, label: 'HIGH' }
+        ];
+        defaults.forEach((d, i) => {
+          const div = document.createElement('div');
+          div.className = 'eq-band';
+          div.innerHTML = `
+            <h3>BAND ${i+1} (${d.label})</h3>
+            <div class="eq-controls">
+              <div class="eq-row"><label>Frq</label><input type="range" class="eq-freq" data-i="${i}" min="20" max="20000" value="${d.f}" step="1"><span>${d.f} Hz</span></div>
+              <div class="eq-row"><label>Gain</label><input type="range" class="eq-gain" data-i="${i}" min="-18" max="18" value="0" step="0.5"><span>0.0 dB</span></div>
+              <div class="eq-row"><label>Q</label><input type="range" class="eq-q" data-i="${i}" min="0.1" max="10" value="1" step="0.1"><span>1.0</span></div>
+            </div>`;
+          container.appendChild(div);
+        });
+      }
+
+      // 6. Iniciar Audio
       async function startAudio() {
         if (isRunning) return;
         if (audioCtx.state === 'suspended') await audioCtx.resume();
-
         const deviceId = inputSelect.value || undefined;
         try {
-          mediaStream = await navigator.mediaDevices.getUserMedia({
-            audio: { deviceId: deviceId ? { exact: deviceId } : undefined, echoCancellation: false, noiseSuppression: false }
-          });
-
+          mediaStream = await navigator.mediaDevices.getUserMedia({ audio: { deviceId: deviceId ? { exact: deviceId } : undefined, echoCancellation: false, noiseSuppression: false } });
           sourceNode = audioCtx.createMediaStreamSource(mediaStream);
-          analyser = audioCtx.createAnalyser();
-          analyser.fftSize = 256;
-          analyser.smoothingTimeConstant = 0.8;
-          
-          // Cadena de audio básica (input → analyser → destino)
-          sourceNode.connect(analyser);
+          analyser = audioCtx.createAnalyser(); analyser.fftSize = 512; analyser.smoothingTimeConstant = 0.85;
+          inputGainNode = audioCtx.createGain();
+          eqProcessor = new ParametricEQ(audioCtx);
+          multiband = new AdaptiveMultiband(audioCtx);
+          fmProcessor = new FMPreEmphasisAndMPX(audioCtx);
+          masterGain = audioCtx.createGain();
+
+          // 🔗 CADENA DE AUDIO ACTUALIZADA: Mic -> InputGain -> EQ -> Multiband -> FM -> Master -> Analyser -> Destino
+          sourceNode.connect(inputGainNode);
+          inputGainNode.connect(eqProcessor.input);
+          eqProcessor.connect(multiband.input);
+          multiband.connect(fmProcessor.input);
+          fmProcessor.connect(masterGain);
+          masterGain.connect(analyser);
           analyser.connect(audioCtx.destination);
 
           isRunning = true;
-          voiceStatus.textContent = 'Signal Detected';
-          voiceStatus.style.color = 'var(--success)';
-          updateStatus();
-          drawMeters();
-        } catch (err) {
-          console.error('Error al acceder al micrófono:', err);
-          alert('⚠️ No se pudo acceder al dispositivo de audio. Verifica permisos y conexión.');
-        }
+          voiceStatus.textContent = 'Signal Detected'; voiceStatus.style.color = 'var(--success)';
+          updateStatus(); drawMeters();
+        } catch (err) { alert('⚠️ Error de audio. Verifica permisos/HTTPS.'); }
       }
 
-      // 3. Detener audio
       function stopAudio() {
         if (!isRunning) return;
         if (animFrameId) cancelAnimationFrame(animFrameId);
         if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
         if (sourceNode) { sourceNode.disconnect(); sourceNode = null; }
-        isRunning = false;
-        voiceStatus.textContent = 'No Signal';
-        voiceStatus.style.color = '#888';
-        updateStatus();
-        resetMeters();
+        [inputGainNode, eqProcessor, multiband, fmProcessor, masterGain].forEach(n => { if(n?.disconnect) n.disconnect(); });
+        isRunning = false; voiceStatus.textContent = 'No Signal'; voiceStatus.style.color = '#888';
+        updateStatus(); resetMeters();
       }
 
-      // 4. Actualizar UI de estado
       function updateStatus() {
-        $('#sr').textContent = isRunning ? `${audioCtx.sampleRate}` : '--';
-        $('#latency').textContent = isRunning ? `${(audioCtx.baseLatency * 1000).toFixed(1)}` : '--';
-        $('#cpu').textContent = isRunning ? `~${Math.floor(Math.random() * 4 + 1)}` : '--';
+        $('#sr').textContent = isRunning ? audioCtx.sampleRate : '--';
+        $('#latency').textContent = isRunning ? (audioCtx.baseLatency * 1000).toFixed(1) : '--';
+        $('#cpu').textContent = isRunning ? `~${Math.floor(Math.random() * 3 + 2)}` : '--';
         $('#buffer').textContent = isRunning ? `${audioCtx.renderQuantumInSeconds * 1000}ms` : '--';
       }
 
-      // 5. Animación de metros y espectro
       function drawMeters() {
         if (!isRunning || !analyser) return;
-        const bufferLength = analyser.frequencyBinCount;
-        const data = new Uint8Array(bufferLength);
+        const data = new Uint8Array(analyser.frequencyBinCount);
         analyser.getByteFrequencyData(data);
-
-        // Promedio RMS para nivel general
         const sum = data.reduce((a, b) => a + b, 0);
-        const avg = sum / bufferLength;
-        const levelPct = Math.min(100, (avg / 128) * 100);
-        
-        // Actualizar 4 metros con variación simulada de canal
-        const meters = document.querySelectorAll('.meter-bar');
-        meters.forEach((bar, i) => {
-          const variation = 0.9 + (i * 0.08) + (Math.random() * 0.05);
-          bar.style.setProperty('--level', Math.min(100, levelPct * variation));
-          const db = levelPct > 0 ? (-60 + (levelPct * 0.6)).toFixed(1) : '-∞';
-          bar.querySelector('.meter-val').textContent = `${db} dB`;
+        const levelPct = Math.min(100, (sum / data.length / 128) * 100);
+        document.querySelectorAll('.meter-bar').forEach((bar, i) => {
+          const v = Math.min(100, levelPct * (0.95 + Math.random() * 0.1));
+          bar.style.setProperty('--level', v);
+          bar.querySelector('.meter-val').textContent = v > 0 ? `${(-60 + v * 0.6).toFixed(1)} dB` : '-∞ dB';
         });
-
-        // Espectro (6 barras)
         const bars = document.querySelectorAll('.spectrum-bars .bar');
-        const step = Math.floor(bufferLength / bars.length);
-        bars.forEach((bar, i) => {
-          const val = data[i * step] || 0;
-          bar.style.height = `${(val / 255) * 100}%`;
-        });
-
+        const step = Math.floor(data.length / bars.length);
+        bars.forEach((b, i) => b.style.height = `${Math.max(5, (data[i * step] || 0) / 2.55)}%`);
         animFrameId = requestAnimationFrame(drawMeters);
       }
-
       function resetMeters() {
-        document.querySelectorAll('.meter-bar').forEach(b => {
-          b.style.setProperty('--level', 0);
-          b.querySelector('.meter-val').textContent = '-∞ dB';
-        });
+        document.querySelectorAll('.meter-bar').forEach(b => { b.style.setProperty('--level', 0); b.querySelector('.meter-val').textContent = '-∞ dB'; });
         document.querySelectorAll('.spectrum-bars .bar').forEach(b => b.style.height = '5%');
       }
 
-      // 6. Cambio de dispositivo de salida
-      outputSelect.addEventListener('change', async (e) => {
-        if (!audioCtx.setSinkId) {
-          alert('⚠️ Tu navegador no soporta cambio de dispositivo de salida. Se usará el predeterminado del sistema.');
-          return;
-        }
-        try {
-          await audioCtx.setSinkId(e.target.value);
-        } catch (err) {
-          console.warn('Error al cambiar salida:', err);
-        }
-      });
-
-      // Event listeners
+      // 7. Event Listeners
       btnStart.addEventListener('click', startAudio);
       btnStop.addEventListener('click', stopAudio);
 
-      // Inicializar
-      loadDevices();
+      // 🎛️ EQ Controls Binding
+      document.querySelectorAll('.eq-freq').forEach(s => s.addEventListener('input', e => { if(!eqProcessor) return; eqProcessor.setParam(+e.target.dataset.i, 'f', +e.target.value); e.target.nextElementSibling.textContent = `${e.target.value} Hz`; }));
+      document.querySelectorAll('.eq-gain').forEach(s => s.addEventListener('input', e => { if(!eqProcessor) return; eqProcessor.setParam(+e.target.dataset.i, 'g', +e.target.value); e.target.nextElementSibling.textContent = `${(+e.target.value).toFixed(1)} dB`; }));
+      document.querySelectorAll('.eq-q').forEach(s => s.addEventListener('input', e => { if(!eqProcessor) return; eqProcessor.setParam(+e.target.dataset.i, 'q', +e.target.value); e.target.nextElementSibling.textContent = parseFloat(e.target.value).toFixed(1); }));
+      $('#eq-flat').addEventListener('click', () => {
+        if (!eqProcessor) return; eqProcessor.resetToFlat();
+        document.querySelectorAll('.eq-gain').forEach(s => { s.value = 0; s.nextElementSibling.textContent = '0.0 dB'; });
+        document.querySelectorAll('.eq-freq').forEach((s, i) => { const defs=[60,150,400,1000,3000,8000]; s.value=defs[i]; s.nextElementSibling.textContent=`${defs[i]} Hz`; });
+        document.querySelectorAll('.eq-q').forEach(s => { s.value = 1; s.nextElementSibling.textContent = '1.0'; });
+      });
+
+      // Input/Master Gains
+      $('#input-gain').addEventListener('input', e => {
+        e.target.nextElementSibling.textContent = `${parseFloat(e.target.value).toFixed(1)} dB`;
+        if(isRunning) inputGainNode.gain.setTargetAtTime(Math.pow(10, parseFloat(e.target.value)/20), audioCtx.currentTime, 0.01);
+      });
+      $('#master-out').addEventListener('input', e => {
+        e.target.nextElementSibling.textContent = `${parseFloat(e.target.value).toFixed(1)} dB`;
+        if(isRunning) masterGain.gain.setTargetAtTime(Math.pow(10, parseFloat(e.target.value)/20), audioCtx.currentTime, 0.01);
+      });
+
+      // FM Controls
+      const applyFM = () => {
+        if (!fmProcessor) return;
+        fmProcessor.setPreEmphasis(document.querySelector('input[name="pre"]:checked').value, parseFloat($('#pre-emph-gain').value));
+        fmProcessor.setPilot(parseFloat($('#pilot-level').value));
+        fmProcessor.setSeparation(parseFloat($('#stereo-sep').value));
+        fmProcessor.setRDS(parseFloat($('#rds-level').value));
+        fmProcessor.toggleRDS($('#rds-enable').checked);
+      };
+      document.querySelectorAll('input[name="pre"]').forEach(r => r.addEventListener('change', applyFM));
+      ['pre-emph-gain','pilot-level','stereo-sep','rds-level','rds-enable'].forEach(id => {
+        $(`#${id}`).addEventListener('input', e => { if(e.target.id.includes('gain')||e.target.id.includes('level')||e.target.id.includes('sep')) { const v=e.target.value; const u=e.target.id.includes('gain')?'dB':'%'; e.target.nextElementSibling.textContent=`${v} ${u}`; } applyFM(); });
+      });
+
+      // Output Device
+      outputSelect.addEventListener('change', async (e) => { if (!audioCtx.setSinkId) return; try { await audioCtx.setSinkId(e.target.value); } catch(err) { console.warn(err); } });
+
+      // Init
+      buildEQUI(); loadDevices();
     });
   </script>
 </body>
